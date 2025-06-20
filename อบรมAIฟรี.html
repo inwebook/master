@@ -197,14 +197,25 @@
         ytPlayers[iframe.id] = new YT.Player(iframe.id);
       });
     }
-    function seekTo(playerId, seconds) {
+    function seekTo(playerId, seconds, event) {
+      // Prevent default link behavior
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      
       const player = ytPlayers[playerId];
       if (player && player.seekTo) {
         player.seekTo(seconds, true);
       } else {
         const iframe = document.getElementById(playerId);
-        iframe.src = iframe.src.split('?')[0] + '?start=' + seconds;
+        if (iframe) {
+          const currentSrc = iframe.src;
+          const baseUrl = currentSrc.split('?')[0];
+          iframe.src = baseUrl + '?start=' + seconds + '&autoplay=1';
+        }
       }
+      return false;
     }
   </script>
   <script src="https://www.youtube.com/iframe_api"></script>
