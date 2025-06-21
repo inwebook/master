@@ -189,6 +189,63 @@
       .hero h1 { font-size: 2rem; }
       .seo-intro h2 { font-size: 1.5rem; }
     }
+
+    /* Certificate Section */
+    .certificate-section {
+      background: #f0f8ff;
+      padding: 4rem 2rem;
+      text-align: center;
+      border-top: 3px solid #28a745;
+    }
+    .certificate-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .certificate-section h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+    .certificate-section p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: #555;
+      line-height: 1.8;
+    }
+    .certificate-btn {
+      display: inline-block;
+      background: linear-gradient(45deg, #28a745, #20c997);
+      color: white;
+      padding: 1.2rem 2.5rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .certificate-btn:hover {
+      background: linear-gradient(45deg, #218838, #1ea87a);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+      color: white;
+    }
+    .certificate-btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Mobile responsiveness for certificate section */
+    @media (max-width: 768px) {
+      .certificate-section h2 { 
+        font-size: 1.5rem; 
+      }
+      .certificate-btn {
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+      }
+    }
   </style>
   <script>
     let ytPlayers = {};
