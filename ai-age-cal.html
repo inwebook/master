@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human vs. AI Time Calculator by อาจารย์แชมป์ ธิติพล เทียมจันทร์</title>
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #111936;
+            --bg-card: #1a1f3a;
+            --bg-hover: #252b4d;
+            --accent-blue: #2563eb;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #7c3aed;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d3748;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gradient-1: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            --gradient-2: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 40px rgba(37, 99, 235, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-2%, -2%) scale(1.1); }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .lang-switcher {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 8px;
+            background: var(--bg-card);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lang-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .lang-btn.active {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .lang-flag {
+            font-size: 1.2em;
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .highlight-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 16px 24px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+            border-color: var(--accent-blue);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .stat-info {
+            text-align: left;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px 24px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .tab.active {
+            color: white;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .tab.active::before {
+            opacity: 1;
+        }
+
+        .tab span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Calculator Sections */
+        .calculator-section {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            display: none;
+        }
+
+        .calculator-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            font-size: 1em;
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-hint {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        input[type="number"], select {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .radio-card {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .radio-card:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-hover);
+        }
+
+        .radio-card input[type="radio"] {
+            display: none;
+        }
+
+        .radio-card.selected {
+            border-color: var(--accent-blue);
+            background: rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+        }
+
+        .radio-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .radio-card.selected .radio-icon {
+            border-color: var(--accent-blue);
+            background: var(--accent-blue);
+        }
+
+        .radio-icon::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s ease;
+        }
+
+        .radio-card.selected .radio-icon::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .radio-content {
+            flex: 1;
+        }
+
+        .radio-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .radio-desc {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        /* Result Box */
+        .result-container {
+            background: var(--gradient-1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .result-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .result-label {
+            position: relative;
+            z-index: 1;
+            font-size: 1.1em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+        }
+
+        .result-value {
+            position: relative;
+            z-index: 1;
+            font-size: 4em;
+            font-weight: 800;
+            margin: 20px 0;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .result-detail {
+            position: relative;
+            z-index: 1;
+            font-size: 1.1em;
+            opacity: 0.95;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .speed-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-top: 16px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Comparison Cards */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .comparison-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comparison-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .human-card::before {
+            background: var(--warning);
+        }
+
+        .ai-card::before {
+            background: var(--success);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .human-card .card-icon {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .ai-card .card-icon {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        .card-value {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-meta {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            font-size: 1.2em;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.7;
+        }
+
+        .info-content strong {
+            color: var(--text-primary);
+        }
+
+        /* Range Slider */
+        .range-container {
+            margin: 20px 0;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            border: 2px solid white;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+        }
+
+        .range-value {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-top: 8px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+        }
+
+        .stat-box-value {
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            display: block;
+        }
+
+        .stat-box-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Formula Box */
+        .formula-box {
+            background: var(--bg-card);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 24px;
+            font-family: 'Courier New', monospace;
+            color: var(--text-secondary);
+        }
+
+        .formula {
+            font-size: 1.2em;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        .footer p {
+            margin: 8px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .lang-switcher {
+                position: relative;
+                margin-bottom: 20px;
+                justify-content: center;
+            }
+            
+            .highlight-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tabs-container {
+                flex-direction: column;
+            }
+            
+            .result-value {
+                font-size: 2.5em;
+            }
+            
+            .calculator-section {
+                padding: 24px;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="switchLanguage('en')" id="btn-en">
+                    <span class="lang-flag">🇺🇸</span>
+                    <span>EN</span>
+                </button>
+                <button class="lang-btn" onclick="switchLanguage('th')" id="btn-th">
+                    <span class="lang-flag">🇹🇭</span>
+                    <span>TH</span>
+                </button>
+            </div>
+            
+            <h1 data-i18n="title">Human vs. AI Time Calculator</h1>
+            <p class="subtitle" data-i18n="subtitle">
+                Based on METR research: AI capabilities double every ~7 months • AI learns 36x faster than humans
+            </p>
+            
+            <div class="highlight-stats">
+                <div class="stat-badge">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-info">
+                        <div class="stat-value">36x</div>
+                        <div class="stat-label" data-i18n="speedLabel">Learning Speed</div>
+                    </div>
+                </div>
+                <div class="stat-badge">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <div class="stat-value">7mo</div>
+                        <div class="stat-label" data-i18n="doublingLabel">Doubling Time</div>
+                    </div>
+                </div>
+                <div class="stat-badge">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label" data-i18n="uptimeLabel">AI Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <button class="tab active" onclick="switchTab('converter')">
+                <span>🔄</span>
+                <span data-i18n="tabConverter">Time Converter</span>
+            </button>
+            <button class="tab" onclick="switchTab('horizon')">
+                <span>📈</span>
+                <span data-i18n="tabHorizon">AI Horizon</span>
+            </button>
+            <button class="tab" onclick="switchTab('learning')">
+                <span>🧠</span>
+                <span data-i18n="tabLearning">Learning Curve</span>
+            </button>
+        </div>
+
+        <!-- Converter Tab -->
+        <div id="converter" class="calculator-section active">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>🔄</span>
+                    <span data-i18n="converterTitle">Human Time to AI Time Converter</span>
+                </h2>
+                <p class="section-desc" data-i18n="converterDesc">Convert human learning/training time to equivalent AI processing time</p>
+            </div>
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <label class="input-label">
+                        <span data-i18n="humanTimeLabel">Human Time Duration</span>
+                    </label>
+                    <input type="number" id="humanTime" value="4" min="0" step="0.1" oninput="calculateConverter()">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">
+                        <span data-i18n="timeUnitLabel">Time Unit</span>
+                    </label>
+                    <select id="timeUnit" onchange="calculateConverter()">
+                        <option value="minutes" data-i18n="unitMinutes">Minutes</option>
+                        <option value="hours" data-i18n="unitHours">Hours</option>
+                        <option value="days" data-i18n="unitDays">Days</option>
+                        <option value="weeks" data-i18n="unitWeeks">Weeks</option>
+                        <option value="months" data-i18n="unitMonths" selected>Months</option>
+                        <option value="years" data-i18n="unitYears">Years</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 32px;">
+                <label class="input-label" data-i18n="calculationMode">Calculation Mode</label>
+                <div class="radio-group">
+                    <label class="radio-card selected" onclick="selectRadio(this, 'mode', 'learning')">
+                        <input type="radio" name="mode" value="learning" checked onchange="calculateConverter()">
+                        <div class="radio-icon"></div>
+                        <div class="radio-content">
+                            <div class="radio-title" data-i18n="modeLearning">Skill Learning</div>
+                            <div class="radio-desc" data-i18n="modeLearningDesc">36x speedup (1 year → 10 days)</div>
+                        </div>
+                    </label>
+                    <label class="radio-card" onclick="selectRadio(this, 'mode', 'capability')">
+                        <input type="radio" name="mode" value="capability" onchange="calculateConverter()">
+                        <div class="radio-icon"></div>
+                        <div class="radio-content">
+                            <div class="radio-title" data-i18n="modeCapability">Capability Doubling</div>
+                            <div class="radio-desc" data-i18n="modeCapabilityDesc">Exponential growth cycle</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="result-container">
+                <div class="result-label" data-i18n="aiEquivalent">AI Equivalent Time</div>
+                <div class="result-value" id="aiTimeResult">2.7 days</div>
+                <div class="result-detail" id="converterDetail">
+                    <span data-i18n="aiAchieves">AI achieves in</span> <strong>2.7 days</strong> <span data-i18n="whatTakesHuman">what takes a human 4 months</span><br>
+                    <span class="speed-badge">36x <span data-i18n="faster">faster</span></span>
+                </div>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card human-card">
+                    <div class="card-header">
+                        <div class="card-icon">👤</div>
+                        <div class="card-title" data-i18n="humanTime">Human Time</div>
+                    </div>
+                    <div class="card-value" id="humanDisplay">4 months</div>
+                    <div class="card-meta" data-i18n="humanFactors">Includes sleep, breaks, forgetting curve, and biological limitations</div>
+                </div>
+                <div class="comparison-card ai-card">
+                    <div class="card-header">
+                        <div class="card-icon">🤖</div>
+                        <div class="card-title" data-i18n="aiTime">AI Time</div>
+                    </div>
+                    <div class="card-value" id="aiDisplay">2.7 days</div>
+                    <div class="card-meta" data-i18n="aiAdvantages">24/7 parallel processing with perfect retention and no decay</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <strong data-i18n="insightTitle">Key Insight:</strong>
+                    <span data-i18n="insightText">AI doesn't just work faster—it learns differently. While humans experience knowledge decay starting within days, AI has perfect retention and can parallel-process millions of examples simultaneously.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horizon Tab -->
+        <div id="horizon" class="calculator-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>📈</span>
+                    <span data-i18n="horizonTitle">AI Time Horizon Calculator</span>
+                </h2>
+                <p class="section-desc" data-i18n="horizonDesc">Project when AI will reach autonomous task durations based on exponential growth trends</p>
+            </div>
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <label class="input-label">
+                        <span data-i18n="targetDuration">Target Task Duration</span>
+                        <span class="input-hint" data-i18n="targetHint">(in human hours)</span>
+                    </label>
+                    <input type="number" id="targetHours" value="160" min="1" oninput="calculateHorizon()">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">
+                        <span data-i18n="currentHorizon">Current AI Horizon</span>
+                        <span class="input-hint" data-i18n="currentHint">(hours of autonomous work)</span>
+                    </label>
+                    <input type="number" id="currentHorizon" value="1" min="0.1" step="0.1" oninput="calculateHorizon()">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" data-i18n="doublingSpeed">Doubling Speed</label>
+                    <select id="doublingSpeed" onchange="calculateHorizon()">
+                        <option value="7" data-i18n="speedStandard">Standard (7 months) - Historical average</option>
+                        <option value="4" data-i18n="speedAccelerated" selected>Accelerated (4 months) - 2024-2025 trend</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="result-container">
+                <div class="result-label" data-i18n="aiWillReach">AI Will Reach This Capability</div>
+                <div class="result-value" id="horizonDate">~2027</div>
+                <div class="result-detail" id="horizonDetail">
+                    <span data-i18n="startingFrom">Starting from 1 hour, reaching 160 hours requires</span><br>
+                    <strong>7.3 <span data-i18n="doublings">doublings</span></strong> ≈ <strong>29 <span data-i18n="months">months</span></strong> <span data-i18n="atCurrentPace">at current pace</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-box-value" id="numDoublings">7.3</span>
+                    <div class="stat-box-label" data-i18n="doublingsNeeded">Doublings Needed</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-value" id="monthsToReach">29</span>
+                    <div class="stat-box-label" data-i18n="monthsToReachLabel">Months to Reach</div>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-value" id="yearsToReach">2.4</span>
+                    <div class="stat-box-label" data-i18n="years">Years</div>
+                </div>
+            </div>
+
+            <div class="formula-box">
+                <div class="formula">Months = log₂(Target ÷ Current) × DoublingPeriod</div>
+                <div style="opacity: 0.7; margin-top: 8px;" data-i18n="formulaSource">Based on METR's exponential trend analysis</div>
+            </div>
+        </div>
+
+        <!-- Learning Tab -->
+        <div id="learning" class="calculator-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span>🧠</span>
+                    <span data-i18n="learningTitle">Comparative Learning Curve</span>
+                </h2>
+                <p class="section-desc" data-i18n="learningDesc">Compare human vs. AI skill acquisition accounting for biological and technical factors</p>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 32px;">
+                <label class="input-label" data-i18n="skillComplexity">Skill Complexity</label>
+                <div class="range-container">
+                    <input type="range" id="complexity" min="1" max="365" value="120" oninput="updateLearningCurve()">
+                    <div class="range-labels">
+                        <span data-i18n="simple">Simple (1 day)</span>
+                        <span data-i18n="moderate">Moderate (1 month)</span>
+                        <span data-i18n="expert">Expert (1 year)</span>
+                    </div>
+                    <div class="range-value" id="complexityValue">120 days</div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <label class="input-label" data-i18n="humanEfficiency">Human Learning Efficiency</label>
+                    <select id="humanEfficiency" onchange="updateLearningCurve()">
+                        <option value="1.3" data-i18n="fastLearner">Fast learner (+30% efficiency)</option>
+                        <option value="1" data-i18n="averageLearner" selected>Average (standard curve)</option>
+                        <option value="0.7" data-i18n="slowLearner">Slow learner (-30% efficiency)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="result-container">
+                <div class="result-label" data-i18n="aiMasteryTime">AI Mastery Time</div>
+                <div class="result-value" id="aiLearningTime">3.3 days</div>
+                <div class="result-detail">
+                    <span data-i18n="humanTakes">Human:</span> <strong>120 days</strong> (4 months)<br>
+                    <span data-i18n="aiTakes">AI:</span> <strong>3.3 days</strong> <span data-i18n="continuousTraining">of continuous training</span><br>
+                    <span class="speed-badge">36x <span data-i18n="acceleration">acceleration</span></span>
+                </div>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card human-card">
+                    <div class="card-header">
+                        <div class="card-icon">😴</div>
+                        <div class="card-title" data-i18n="humanReality">Human Learning Reality</div>
+                    </div>
+                    <ul class="feature-list">
+                        <li><span class="feature-icon">😴</span> <span data-i18n="humanSleep">8 hours sleep/day (33% downtime)</span></li>
+                        <li><span class="feature-icon">📉</span> <span data-i18n="humanForgetting">Forgetting curve: 50% loss in 1 week</span></li>
+                        <li><span class="feature-icon">🎯</span> <span data-i18n="humanSequential">Sequential learning only</span></li>
+                        <li><span class="feature-icon">😰</span> <span data-i18n="humanEmotional">Emotional/motivation factors</span></li>
+                        <li><span class="feature-icon">🔄</span> <span data-i18n="humanRepetition">Need spaced repetition</span></li>
+                    </ul>
+                </div>
+                <div class="comparison-card ai-card">
+                    <div class="card-header">
+                        <div class="card-icon">⚡</div>
+                        <div class="card-title" data-i18n="aiAdvantagesTitle">AI Learning Advantages</div>
+                    </div>
+                    <ul class="feature-list">
+                        <li><span class="feature-icon">⚡</span> <span data-i18n="ai24_7">24/7 continuous processing</span></li>
+                        <li><span class="feature-icon">💾</span> <span data-i18n="aiRetention">Perfect retention (no decay)</span></li>
+                        <li><span class="feature-icon">🚀</span> <span data-i18n="aiParallel">Massive parallel processing</span></li>
+                        <li><span class="feature-icon">🎯</span> <span data-i18n="aiConsistent">Consistent optimization</span></li>
+                        <li><span class="feature-icon">📊</span> <span data-i18n="aiUpdates">Instant weight updates</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-icon">📚</div>
+                <div class="info-content">
+                    <strong data-i18n="researchSource">Research Source:</strong>
+                    <span data-i18n="researchText">2025 studies show AI can simulate a full year of human learning in just 10 days through advanced training techniques and parallel processing.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p data-i18n="footerSource">Based on METR (Model Evaluation and Threat Research) data and recent AI training efficiency research</p>
+            <p data-i18n="footerMetrics">Conversion factor: 36:1 (AI:Human) | Horizon doubling: every 4-7 months</p>
+        </div>
+    </div>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                title: "Human vs. AI Time Calculator",
+                subtitle: "Based on METR research: AI capabilities double every ~7 months • AI learns 36x faster than humans",
+                speedLabel: "Learning Speed",
+                doublingLabel: "Doubling Time",
+                uptimeLabel: "AI Uptime",
+                tabConverter: "Time Converter",
+                tabHorizon: "AI Horizon",
+                tabLearning: "Learning Curve",
+                converterTitle: "Human Time to AI Time Converter",
+                converterDesc: "Convert human learning/training time to equivalent AI processing time",
+                humanTimeLabel: "Human Time Duration",
+                timeUnitLabel: "Time Unit",
+                unitMinutes: "Minutes",
+                unitHours: "Hours",
+                unitDays: "Days",
+                unitWeeks: "Weeks",
+                unitMonths: "Months",
+                unitYears: "Years",
+                calculationMode: "Calculation Mode",
+                modeLearning: "Skill Learning",
+                modeLearningDesc: "36x speedup (1 year → 10 days)",
+                modeCapability: "Capability Doubling",
+                modeCapabilityDesc: "Exponential growth cycle",
+                aiEquivalent: "AI Equivalent Time",
+                aiAchieves: "AI achieves in",
+                whatTakesHuman: "what takes a human 4 months",
+                faster: "faster",
+                humanTime: "Human Time",
+                humanFactors: "Includes sleep, breaks, forgetting curve, and biological limitations",
+                aiTime: "AI Time",
+                aiAdvantages: "24/7 parallel processing with perfect retention and no decay",
+                insightTitle: "Key Insight:",
+                insightText: "AI doesn't just work faster—it learns differently. While humans experience knowledge decay starting within days, AI has perfect retention and can parallel-process millions of examples simultaneously.",
+                horizonTitle: "AI Time Horizon Calculator",
+                horizonDesc: "Project when AI will reach autonomous task durations based on exponential growth trends",
+                targetDuration: "Target Task Duration",
+                targetHint: "(in human hours)",
+                currentHorizon: "Current AI Horizon",
+                currentHint: "(hours of autonomous work)",
+                doublingSpeed: "Doubling Speed",
+                speedStandard: "Standard (7 months) - Historical average",
+                speedAccelerated: "Accelerated (4 months) - 2024-2025 trend",
+                aiWillReach: "AI Will Reach This Capability",
+                startingFrom: "Starting from 1 hour, reaching 160 hours requires",
+                doublings: "doublings",
+                months: "months",
+                atCurrentPace: "at current pace",
+                doublingsNeeded: "Doublings Needed",
+                monthsToReachLabel: "Months to Reach",
+                years: "Years",
+                formulaSource: "Based on METR's exponential trend analysis",
+                learningTitle: "Comparative Learning Curve",
+                learningDesc: "Compare human vs. AI skill acquisition accounting for biological and technical factors",
+                skillComplexity: "Skill Complexity",
+                simple: "Simple (1 day)",
+                moderate: "Moderate (1 month)",
+                expert: "Expert (1 year)",
+                humanEfficiency: "Human Learning Efficiency",
+                fastLearner: "Fast learner (+30% efficiency)",
+                averageLearner: "Average (standard curve)",
+                slowLearner: "Slow learner (-30% efficiency)",
+                aiMasteryTime: "AI Mastery Time",
+                humanTakes: "Human:",
+                aiTakes: "AI:",
+                continuousTraining: "of continuous training",
+                acceleration: "acceleration",
+                humanReality: "Human Learning Reality",
+                humanSleep: "8 hours sleep/day (33% downtime)",
+                humanForgetting: "Forgetting curve: 50% loss in 1 week",
+                humanSequential: "Sequential learning only",
+                humanEmotional: "Emotional/motivation factors",
+                humanRepetition: "Need spaced repetition",
+                aiAdvantagesTitle: "AI Learning Advantages",
+                ai24_7: "24/7 continuous processing",
+                aiRetention: "Perfect retention (no decay)",
+                aiParallel: "Massive parallel processing",
+                aiConsistent: "Consistent optimization",
+                aiUpdates: "Instant weight updates",
+                researchSource: "Research Source:",
+                researchText: "2025 studies show AI can simulate a full year of human learning in just 10 days through advanced training techniques and parallel processing.",
+                footerSource: "Based on METR (Model Evaluation and Threat Research) data and recent AI training efficiency research",
+                footerMetrics: "Conversion factor: 36:1 (AI:Human) | Horizon doubling: every 4-7 months"
+            },
+            th: {
+                title: "เครื่องคำนวณเวลามนุษย์ vs AI",
+                subtitle: "อ้างอิงจากงานวิจัย METR: ความสามารถ AI เพิ่มขึ้นสองเท่าทุก ~7 เดือน • AI เร็วกว่ามนุษย์ 36 เท่า",
+                speedLabel: "ความเร็วการเรียนรู้",
+                doublingLabel: "เวลาเพิ่มสองเท่า",
+                uptimeLabel: "AI ทำงานต่อเนื่อง",
+                tabConverter: "แปลงเวลา",
+                tabHorizon: "ขอบเขต AI",
+                tabLearning: "เส้นโค้งการเรียนรู้",
+                converterTitle: "แปลงเวลามนุษย์เป็นเวลา AI",
+                converterDesc: "แปลงเวลาการเรียนรู้/ฝึกอบรมของมนุษย์เป็นเวลาประมวลผลของ AI",
+                humanTimeLabel: "ระยะเวลาของมนุษย์",
+                timeUnitLabel: "หน่วยเวลา",
+                unitMinutes: "นาที",
+                unitHours: "ชั่วโมง",
+                unitDays: "วัน",
+                unitWeeks: "สัปดาห์",
+                unitMonths: "เดือน",
+                unitYears: "ปี",
+                calculationMode: "โหมดการคำนวณ",
+                modeLearning: "การเรียนรู้ทักษะ",
+                modeLearningDesc: "เร็วขึ้น 36 เท่า (1 ปี → 10 วัน)",
+                modeCapability: "ความสามารถเพิ่มสองเท่า",
+                modeCapabilityDesc: "วัฏจักรการเติบโตแบบเอกซ์โพเนนเชียล",
+                aiEquivalent: "เวลาที่เทียบเท่าของ AI",
+                aiAchieves: "AI ทำได้ใน",
+                whatTakesHuman: "ในสิ่งที่มนุษย์ใช้เวลา 4 เดือน",
+                faster: "เร็วกว่า",
+                humanTime: "เวลามนุษย์",
+                humanFactors: "รวมการนอนหลับ พักผ่อน การลืม และข้อจำกัดทางชีวภาพ",
+                aiTime: "เวลา AI",
+                aiAdvantages: "ประมวลผลขนานตลอด 24 ชั่วโมง จดจำได้สมบูรณ์ ไม่มีการลืม",
+                insightTitle: "ข้อคิดสำคัญ:",
+                insightText: "AI ไม่ได้แค่ทำงานเร็วกว่า—แต่เรียนรู้ต่างกัน ในขณะที่มนุษย์เริ่มลืมภายในวัน AI มีการจดจำที่สมบูรณ์และสามารถประมวลผลตัวอย่างได้หลายล้านตัวพร้อมกัน",
+                horizonTitle: "เครื่องคำนวณขอบเขตเวลา AI",
+                horizonDesc: "คาดการณ์ว่า AI จะบรรลุระยะเวลางานอิสระตามแนวโน้มการเติบโตแบบเอกซ์โพเนนเชียล",
+                targetDuration: "ระยะเวลางานเป้าหมาย",
+                targetHint: "(เป็นชั่วโมงของมนุษย์)",
+                currentHorizon: "ขอบเขตปัจจุบันของ AI",
+                currentHint: "(ชั่วโมงของการทำงานอิสระ)",
+                doublingSpeed: "ความเร็วในการเพิ่มสองเท่า",
+                speedStandard: "มาตรฐาน (7 เดือน) - ค่าเฉลี่ยทางประวัติศาสตร์",
+                speedAccelerated: "เร่งด่วน (4 เดือน) - แนวโน้ม 2024-2025",
+                aiWillReach: "AI จะบรรลุความสามารถนี้",
+                startingFrom: "เริ่มจาก 1 ชั่วโมง การไปถึง 160 ชั่วโมงต้องใช้",
+                doublings: "การเพิ่มสองเท่า",
+                months: "เดือน",
+                atCurrentPace: "ด้วยความเร็วปัจจุบัน",
+                doublingsNeeded: "จำนวนการเพิ่มสองเท่าที่ต้องการ",
+                monthsToReachLabel: "เดือนที่ต้องใช้",
+                years: "ปี",
+                formulaSource: "อ้างอิงจากการวิเคราะห์แนวโน้มเอกซ์โพเนนเชียลของ METR",
+                learningTitle: "เส้นโค้งการเรียนรู้แบบเปรียบเทียบ",
+                learningDesc: "เปรียบเทียบการได้มาซึ่งทักษะของมนุษย์กับ AI โดยคำนึงถึงปัจจัยทางชีวภาพและเทคนิค",
+                skillComplexity: "ความซับซ้อนของทักษะ",
+                simple: "ง่าย (1 วัน)",
+                moderate: "ปานกลาง (1 เดือน)",
+                expert: "เชี่ยวชาญ (1 ปี)",
+                humanEfficiency: "ประสิทธิภาพการเรียนรู้ของมนุษย์",
+                fastLearner: "เรียนรู้เร็ว (+30% ประสิทธิภาพ)",
+                averageLearner: "ปกติ (เส้นโค้งมาตรฐาน)",
+                slowLearner: "เรียนรู้ช้า (-30% ประสิทธิภาพ)",
+                aiMasteryTime: "เวลาที่ AI เชี่ยวชาญ",
+                humanTakes: "มนุษย์:",
+                aiTakes: "AI:",
+                continuousTraining: "ของการฝึกอบรมต่อเนื่อง",
+                acceleration: "เร็วขึ้น",
+                humanReality: "ความเป็นจริงการเรียนรู้ของมนุษย์",
+                humanSleep: "นอน 8 ชั่วโมง/วัน (หยุดทำงาน 33%)",
+                humanForgetting: "เส้นโค้งการลืม: สูญเสีย 50% ใน 1 สัปดาห์",
+                humanSequential: "เรียนรู้แบบลำดับเท่านั้น",
+                humanEmotional: "ปัจจัยอารมณ์/แรงจูงใจ",
+                humanRepetition: "ต้องการการทบทวนแบบเว้นระยะ",
+                aiAdvantagesTitle: "ข้อได้เปรียบการเรียนรู้ของ AI",
+                ai24_7: "ประมวลผลต่อเนื่อง 24/7",
+                aiRetention: "การจดจำสมบูรณ์ (ไม่มีการลืม)",
+                aiParallel: "ประมวลผลขนานมหาศาล",
+                aiConsistent: "การปรับแต่งที่สม่ำเสมอ",
+                aiUpdates: "อัปเดตน้ำหนักทันที",
+                researchSource: "แหล่งที่มางานวิจัย:",
+                researchText: "งานวิจัยปี 2025 แสดงให้เห็นว่า AI สามารถจำลองการเรียนรู้ของมนุษย์ 1 ปี ได้ในเวลาเพียง 10 วัน ผ่านเทคนิคการฝึกอบรมขั้นสูงและการประมวลผลขนาน",
+                footerSource: "อ้างอิงจากข้อมูล METR (Model Evaluation and Threat Research) และงานวิจัยประสิทธิภาพการฝึกอบรม AI ล่าสุด",
+                footerMetrics: "อัตราการแปลง: 36:1 (AI:มนุษย์) | ขอบเขตเพิ่มสองเท่า: ทุก 4-7 เดือน"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            
+            // Update buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + lang).classList.add('active');
+            
+            // Update all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+            
+            // Recalculate to update dynamic text
+            calculateConverter();
+            calculateHorizon();
+            updateLearningCurve();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.closest('.tab').classList.add('active');
+            
+            document.querySelectorAll('.calculator-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function selectRadio(element, name, value) {
+            document.querySelectorAll('.radio-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            element.querySelector('input[type="radio"]').checked = true;
+            calculateConverter();
+        }
+
+        function calculateConverter() {
+            const humanTime = parseFloat(document.getElementById('humanTime').value) || 0;
+            const unit = document.getElementById('timeUnit').value;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const t = translations[currentLang];
+            
+            let days;
+            switch(unit) {
+                case 'minutes': days = humanTime / 1440; break;
+                case 'hours': days = humanTime / 24; break;
+                case 'days': days = humanTime; break;
+                case 'weeks': days = humanTime * 7; break;
+                case 'months': days = humanTime * 30.44; break;
+                case 'years': days = humanTime * 365; break;
+            }
+            
+            let aiDays, speedup, detailText;
+            
+            if (mode === 'learning') {
+                aiDays = days / 36;
+                speedup = 36;
+                
+                let aiTimeStr;
+                if (aiDays < 1/24) {
+                    aiTimeStr = Math.round(aiDays * 1440) + ' ' + (currentLang === 'th' ? 'นาที' : 'minutes');
+                } else if (aiDays < 1) {
+                    aiTimeStr = (aiDays * 24).toFixed(1) + ' ' + (currentLang === 'th' ? 'ชั่วโมง' : 'hours');
+                } else if (aiDays < 7) {
+                    aiTimeStr = aiDays.toFixed(1) + ' ' + (currentLang === 'th' ? 'วัน' : 'days');
+                } else if (aiDays < 30) {
+                    aiTimeStr = (aiDays / 7).toFixed(1) + ' ' + (currentLang === 'th' ? 'สัปดาห์' : 'weeks');
+                } else {
+                    aiTimeStr = (aiDays / 30.44).toFixed(1) + ' ' + (currentLang === 'th' ? 'เดือน' : 'months');
+                }
+                
+                const unitText = {
+                    'en': {minutes: 'minutes', hours: 'hours', days: 'days', weeks: 'weeks', months: 'months', years: 'years'},
+                    'th': {minutes: 'นาที', hours: 'ชั่วโมง', days: 'วัน', weeks: 'สัปดาห์', months: 'เดือน', years: 'ปี'}
+                };
+                
+                detailText = `${t.aiAchieves} <strong>${aiTimeStr}</strong> ${t.whatTakesHuman}<br><span class="speed-badge">36x ${t.faster}</span>`;
+                
+                document.getElementById('aiTimeResult').textContent = aiTimeStr;
+                document.getElementById('converterDetail').innerHTML = detailText;
+                
+            } else {
+                const months = days / 30.44;
+                const doublings = months / 7;
+                const aiYears = Math.pow(2, doublings);
+                
+                const aiTimeStr = aiYears.toFixed(1) + (currentLang === 'th' ? ' "ปี AI"' : ' "AI years"');
+                
+                detailText = `${currentLang === 'th' ? 'ในเวลา' : 'In'} ${humanTime} ${t['unit' + unit.charAt(0).toUpperCase() + unit.slice(1)]} ${currentLang === 'th' ? 'ของมนุษย์ ความสามารถ AI พัฒนาเทียบเท่า' : 'of human time, AI capability advances equivalent to'} <strong>${aiYears.toFixed(1)} ${currentLang === 'th' ? 'ปี' : 'years'}</strong> ${currentLang === 'th' ? 'ของความก้าวหน้าทางเทคโนโลยีของมนุษย์' : 'of human technological progress'}<br><span class="speed-badge">${currentLang === 'th' ? 'การเติบโตแบบเอกซ์โพเนนเชียล' : 'Exponential growth'}</span>`;
+                
+                document.getElementById('aiTimeResult').textContent = aiTimeStr;
+                document.getElementById('converterDetail').innerHTML = detailText;
+            }
+            
+            const unitLabels = {
+                'en': {minutes: 'minutes', hours: 'hours', days: 'days', weeks: 'weeks', months: 'months', years: 'years'},
+                'th': {minutes: 'นาที', hours: 'ชั่วโมง', days: 'วัน', weeks: 'สัปดาห์', months: 'เดือน', years: 'ปี'}
+            };
+            
+            document.getElementById('humanDisplay').textContent = humanTime + ' ' + unitLabels[currentLang][unit];
+            document.getElementById('aiDisplay').textContent = document.getElementById('aiTimeResult').textContent;
+        }
+
+        function calculateHorizon() {
+            const target = parseFloat(document.getElementById('targetHours').value) || 1;
+            const current = parseFloat(document.getElementById('currentHorizon').value) || 1;
+            const doublingMonths = parseInt(document.getElementById('doublingSpeed').value);
+            const t = translations[currentLang];
+            
+            if (target <= current) {
+                document.getElementById('horizonDate').textContent = currentLang === 'th' ? 'ตอนนี้' : 'Now';
+                document.getElementById('horizonDetail').innerHTML = currentLang === 'th' ? 'AI มีความสามารถในระดับนี้แล้ว' : 'AI already capable of this task duration';
+                document.getElementById('numDoublings').textContent = '0';
+                document.getElementById('monthsToReach').textContent = '0';
+                document.getElementById('yearsToReach').textContent = '0';
+                return;
+            }
+            
+            const doublings = Math.log2(target / current);
+            const months = doublings * doublingMonths;
+            const years = months / 12;
+            
+            const now = new Date();
+            const targetDate = new Date(now.getTime() + months * 30.44 * 24 * 60 * 60 * 1000);
+            const yearStr = targetDate.getFullYear();
+            
+            document.getElementById('horizonDate').textContent = `~${yearStr}`;
+            document.getElementById('horizonDetail').innerHTML = 
+                `${t.startingFrom} <strong>${doublings.toFixed(1)} ${t.doublings}</strong> ≈ <strong>${Math.round(months)} ${t.months}</strong> ${t.atCurrentPace}`;
+            
+            document.getElementById('numDoublings').textContent = doublings.toFixed(1);
+            document.getElementById('monthsToReach').textContent = Math.round(months);
+            document.getElementById('yearsToReach').textContent = years.toFixed(1);
+        }
+
+        function updateLearningCurve() {
+            const days = parseInt(document.getElementById('complexity').value);
+            const efficiency = parseFloat(document.getElementById('humanEfficiency').value);
+            const t = translations[currentLang];
+            
+            document.getElementById('complexityValue').textContent = days + (currentLang === 'th' ? ' วัน' : ' days');
+            
+            const adjustedDays = days / efficiency;
+            const aiDays = adjustedDays / 36;
+            
+            let aiTimeStr;
+            if (aiDays < 1) {
+                aiTimeStr = (aiDays * 24).toFixed(1) + ' ' + (currentLang === 'th' ? 'ชั่วโมง' : 'hours');
+            } else {
+                aiTimeStr = aiDays.toFixed(1) + ' ' + (currentLang === 'th' ? 'วัน' : 'days');
+            }
+            
+            const humanTimeStr = Math.round(adjustedDays) + (currentLang === 'th' ? ' วัน' : ' days');
+            const months = (adjustedDays / 30.44).toFixed(1);
+            
+            document.getElementById('aiLearningTime').textContent = aiTimeStr;
+            document.getElementById('learningResult').innerHTML = `
+                <div class="result-label">${t.aiMasteryTime}</div>
+                <div class="result-value">${aiTimeStr}</div>
+                <div class="result-detail">
+                    ${t.humanTakes} <strong>${humanTimeStr}</strong> (${months} ${currentLang === 'th' ? 'เดือน' : 'months'})<br>
+                    ${t.aiTakes} <strong>${aiTimeStr}</strong> ${t.continuousTraining}<br>
+                    <span class="speed-badge">36x ${t.acceleration}</span>
+                </div>
+            `;
+        }
+
+        // Initialize
+        calculateConverter();
+        calculateHorizon();
+        updateLearningCurve();
+    </script>
+</body>
+</html>
